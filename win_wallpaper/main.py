@@ -56,7 +56,7 @@ def modify_image(image_path: str, rgb_value: tuple[int]) -> None:
 def main() -> int:
     logging.basicConfig(format="[%(name)s] %(levelname)s: %(message)s", level=logging.INFO)
 
-    version = "0.4.0"
+    version = "1.0.0"
     images: set[str] = set()
 
     # for packed binary
