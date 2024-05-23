@@ -13,6 +13,7 @@ from typing import Any
 from PIL import Image, ImageColor
 
 logger = logging.getLogger("CLI")
+VERSION = "1.0.0"
 
 
 def add_registry_key(
@@ -53,28 +54,13 @@ def modify_image(image_path: str, rgb_value: tuple[int]) -> None:
         logger.exception("permission error accessing %s. %s", image_path, e)
 
 
-def main() -> int:
-    logging.basicConfig(format="[%(name)s] %(levelname)s: %(message)s", level=logging.INFO)
-
-    version = "1.0.0"
-    images: set[str] = set()
-
-    # for packed binary
-    multiprocessing.freeze_support()
-
-    print(
-        f"win-wallpaper Version {version} - GPLv3\nGitHub - https://github.com/deaglebullet\n",
-    )
-
-    if not ctypes.windll.shell32.IsUserAnAdmin():
-        logger.error("administrator privileges required")
-        return 1
-
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
+
     parser.add_argument(
         "--version",
         action="version",
-        version=f"win-wallpaper v{version}",
+        version=f"win-wallpaper v{VERSION}",
     )
     parser.add_argument(
         "--dir",
@@ -96,7 +82,26 @@ def main() -> int:
         action="store_true",
         help="indicates that the image is mounted offline",
     )
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def main() -> int:
+    logging.basicConfig(format="[%(name)s] %(levelname)s: %(message)s", level=logging.INFO)
+
+    images: set[str] = set()
+
+    # for packed binary
+    multiprocessing.freeze_support()
+
+    print(
+        f"win-wallpaper Version {VERSION} - GPLv3\nGitHub - https://github.com/deaglebullet\n",
+    )
+
+    if not ctypes.windll.shell32.IsUserAnAdmin():
+        logger.error("administrator privileges required")
+        return 1
+
+    args = parse_args()
 
     image_paths = (
         f"{args.dir}\\ProgramData\\Microsoft\\User Account Pictures",
