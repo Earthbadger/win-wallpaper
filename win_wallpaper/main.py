@@ -12,7 +12,7 @@ from typing import Any
 
 from PIL import Image, ImageColor
 
-logger = logging.getLogger("CLI")
+LOG_CLI = logging.getLogger("CLI")
 VERSION = "1.0.0"
 
 
@@ -51,7 +51,7 @@ def modify_image(image_path: str, rgb_value: tuple[int]) -> None:
         with Image.new("RGB", size, rgb_value) as new_image:
             new_image.save(image_path)
     except PermissionError as e:
-        logger.exception("permission error accessing %s. %s", image_path, e)
+        LOG_CLI.exception("permission error accessing %s. %s", image_path, e)
 
 
 def parse_args() -> argparse.Namespace:
@@ -98,7 +98,7 @@ def main() -> int:
     )
 
     if not ctypes.windll.shell32.IsUserAnAdmin():
-        logger.error("administrator privileges required")
+        LOG_CLI.error("administrator privileges required")
         return 1
 
     args = parse_args()
@@ -110,13 +110,13 @@ def main() -> int:
     )
 
     if not any(os.path.exists(path) for path in image_paths):
-        logger.error("no folders found, invalid directory")
+        LOG_CLI.error("no folders found, invalid directory")
         return 1
 
     try:
         rgb_value = ImageColor.getcolor(args.rgb, "RGB")
     except ValueError:
-        logger.error("invalid hex code for --rgb argument")
+        LOG_CLI.error("invalid hex code for --rgb argument")
         return 1
 
     for folder_path in image_paths:
@@ -137,10 +137,10 @@ def main() -> int:
             with Image.new("RGB", (1920, 1080), rgb_value) as new_image:
                 new_image.save(image)
         except PermissionError as e:
-            logger.error("permission error accessing %s", image)
+            LOG_CLI.error("permission error accessing %s", image)
             return 1
 
-    logger.info("images replaced successfully")
+    LOG_CLI.info("images replaced successfully")
 
     oem_background: Callable[[str], None] = lambda hive: add_registry_key(
         f"{hive}\\Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI\\Background",
@@ -179,7 +179,7 @@ def main() -> int:
         if args.win7:
             oem_background("SOFTWARE")
 
-    logger.info("done")
+    LOG_CLI.info("done")
 
     return 0
 
